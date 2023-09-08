@@ -461,11 +461,11 @@ public class DataExtractor {
         boolean BitsHaveBeenSet = false;
         List<String> rl = Lists.reverse(l);
         for (String line : rl) {
-            if (RepresentsIRLDate(line)) {
-                sd.IRL_Date = ApecUtils.removeFirstSpaces(line);
-                if (line.contains("\u00a78") && ApecMain.Instance.settingsManager.getSettingState(SettingID.SHOW_CURRENT_SERVER)) {
-                    sd.ExtraInfo.add("Currently in: " + ApecUtils.segmentString(scoreBoardLines.get(scoreBoardLines.size() - 1), "\u00a78", '\u00a7', '~', 1, 1, ApecUtils.SegmentationOptions.TOTALLY_INCLUSIVE));
-                }
+//            if (RepresentsIRLDate(line)) {
+//                sd.IRL_Date = ApecUtils.removeFirstSpaces(line);
+//                if (line.contains("\u00a78") && ApecMain.Instance.settingsManager.getSettingState(SettingID.SHOW_CURRENT_SERVER)) {
+//                    sd.ExtraInfo.add("Currently in: " + ApecUtils.segmentString(scoreBoardLines.get(scoreBoardLines.size() - 1), "\u00a78", '\u00a7', '~', 1, 1, ApecUtils.SegmentationOptions.TOTALLY_INCLUSIVE));
+//               }
             }
             else if (RepresentsMode(line)) {
                 sd.GameMode = ApecUtils.removeFirstSpaces(line);
