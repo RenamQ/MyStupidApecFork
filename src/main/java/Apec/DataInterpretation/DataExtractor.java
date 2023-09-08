@@ -466,8 +466,7 @@ public class DataExtractor {
 //                if (line.contains("\u00a78") && ApecMain.Instance.settingsManager.getSettingState(SettingID.SHOW_CURRENT_SERVER)) {
 //                    sd.ExtraInfo.add("Currently in: " + ApecUtils.segmentString(scoreBoardLines.get(scoreBoardLines.size() - 1), "\u00a78", '\u00a7', '~', 1, 1, ApecUtils.SegmentationOptions.TOTALLY_INCLUSIVE));
 //               }
-            }
-            else if (RepresentsMode(line)) {
+            if (RepresentsMode(line)) {
                 sd.GameMode = ApecUtils.removeFirstSpaces(line);
             }
             else if (RepresentsDate(line)) sd.Date = ApecUtils.removeFirstSpaces(line);
