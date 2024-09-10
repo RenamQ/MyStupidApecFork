@@ -1,9 +1,11 @@
 package Apec.Settings;
 
+import Apec.ApecMain;
 import Apec.Events.ApecSettingChangedState;
 import Apec.Utils.ApecUtils;
 import net.minecraft.util.Tuple;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.Loader;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -61,6 +63,7 @@ public class SettingsManager {
         add(new Setting(SHOW_DEBUG_MESSAGES,false));
         add(new Setting(SHOW_RIFT_TIMER,true));
         add(new Setting(USE_GAME_MODE_OUT_OF_BB, false));
+        add(new Setting(SettingID.USE_KUUDRA_SET_BONUS_OUT_OF_BB, false));
     }};
 
     /** Hashmap that holds the titles and descriptions of each setting */
@@ -107,6 +110,7 @@ public class SettingsManager {
         put(CUSTOM_TOOL_TIP,new Tuple<String,String>("Custom tool tip","Shows extra icons above the item tool tip."));
         put(SHOW_RIFT_TIMER,new Tuple<String,String>("Show rift timer","Shows the rift timer"));
         put(USE_GAME_MODE_OUT_OF_BB, new Tuple<String, String>("Game Mode outside bar", "Shows the gamemode outside the bottom bar"));
+        put(USE_KUUDRA_SET_BONUS_OUT_OF_BB, new Tuple<String, String>("Kuudra set bonus outside bar", "Shows the Kuudra set bonus outside the bottom bar"));
     }};
 
     /** Cache for setting states */
@@ -117,6 +121,9 @@ public class SettingsManager {
      * @return Returns the enable state of the setting
      */
     public boolean getSettingState(SettingID settingID){
+        if (Loader.isModLoaded("oneconfig")) {
+            return ApecMain.oneConfig.getSettingState(settingID);
+        }
         synchronized (stateCache) {
             Boolean state = stateCache.get(settingID);
             if (state != null) return state;
@@ -136,6 +143,10 @@ public class SettingsManager {
      * @param state = The new state of the setting
      */
     public void setSettingState(SettingID settingID,boolean state) {
+        if (Loader.isModLoaded("oneconfig")) {
+            ApecMain.oneConfig.setSettingState(settingID,state);
+            return;
+        }
         stateCache.clear();
         for (Setting s : settings) {
             if (s.settingID == settingID) {

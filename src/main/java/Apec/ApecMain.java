@@ -1,6 +1,7 @@
 package Apec;
 
 import Apec.Commands.ApecComponentTogglerCommand;
+import Apec.Commands.ApecOneConfigCommand;
 import Apec.Components.Gui.ContainerGuis.TrasparentEffects.ActiveEffectsTransparentComponent;
 import Apec.Components.Gui.ContainerGuis.AuctionHouse.AuctionHouseComponent;
 import Apec.Components.Gui.ContainerGuis.SkillView.SkillViewComponent;
@@ -12,6 +13,7 @@ import Apec.DataInterpretation.ComponentSaveManager;
 import Apec.DataInterpretation.ContainerGuiManager;
 import Apec.DataInterpretation.DataExtractor;
 import Apec.DataInterpretation.InventorySubtractor;
+import Apec.Oneconfig.OneConfig;
 import Apec.Settings.SettingsManager;
 import Apec.Utils.VersionChecker;
 import net.minecraft.client.settings.KeyBinding;
@@ -19,15 +21,14 @@ import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.FMLLog;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.Sys;
 import org.lwjgl.input.Keyboard;
 
 import java.util.ArrayList;
@@ -44,16 +45,16 @@ public class ApecMain
 
     public static Logger logger = FMLLog.getLogger();
 
-    public static final String modId = "apec"; 
-    public static final String name = "Apec";
-    public static final String version = "1.11.6";
+    public static final String modId = "@ID@";
+    public static final String name =  "@NAME@";
+    public static final String version = "@VER@";
 
     public static ApecMain Instance;
 
     /** Key for toggling the gui */
-    KeyBinding guiKey = new KeyBinding("Apec Gui", Keyboard.KEY_RCONTROL, "Apec");
+    KeyBinding guiKey;
     /** Key for toggling the menu*/
-    KeyBinding menuKey = new KeyBinding("Apec Settings Menu", Keyboard.KEY_M, "Apec");
+    KeyBinding menuKey;
 
     /** Data parser */
     public DataExtractor dataExtractor = new DataExtractor();
@@ -81,17 +82,32 @@ public class ApecMain
     /** Manages the saving and loading of component save data */
     public ComponentSaveManager componentSaveManager = new ComponentSaveManager(components);
 
+    /** OneConfig instance */
+    public static OneConfig oneConfig;
+
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        ClientCommandHandler.instance.registerCommand(new ApecComponentTogglerCommand(ComponentId.SETTINGS_MENU,"apec",true));
-        ClientCommandHandler.instance.registerCommand(new ApecComponentTogglerCommand(ComponentId.GUI_MODIFIER,"apectoggle",false));
-        ClientCommandHandler.instance.registerCommand(new ApecComponentTogglerCommand(ComponentId.TEXTURE_PACK_REGISTRY_VIEWER,"apectpr",true));
+        if(!Loader.isModLoaded("oneconfig")) {
+            ClientCommandHandler.instance.registerCommand(new ApecComponentTogglerCommand(ComponentId.SETTINGS_MENU,"apec",true));
+            ClientCommandHandler.instance.registerCommand(new ApecComponentTogglerCommand(ComponentId.GUI_MODIFIER,"apectoggle",false));
+        }else {
+            ClientCommandHandler.instance.registerCommand(new ApecOneConfigCommand());
+        }
+        ClientCommandHandler.instance.registerCommand(new ApecComponentTogglerCommand(ComponentId.TEXTURE_PACK_REGISTRY_VIEWER, "apectpr", true));
     }
 
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
         Instance = this;
+        if(Loader.isModLoaded("oneconfig")) {
+            guiKey = new KeyBinding("Apec Gui", Keyboard.KEY_RCONTROL, "Apec (Not used) OneConfig Instead");
+            menuKey = new KeyBinding("Apec Settings Menu", Keyboard.KEY_M, "Apec (Not used) OneConfig Instead");
+            oneConfig = new OneConfig();
+        }else {
+            guiKey = new KeyBinding("Apec Gui", Keyboard.KEY_RCONTROL, "Apec");
+            menuKey = new KeyBinding("Apec Settings Menu", Keyboard.KEY_M, "Apec");
+        }
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(inventorySubtractor);
         MinecraftForge.EVENT_BUS.register(dataExtractor);
@@ -121,6 +137,10 @@ public class ApecMain
 
     @SubscribeEvent
     public void onKeyInput(InputEvent.KeyInputEvent event) {
+        if(Loader.isModLoaded("oneconfig")) {
+            // handle key input in oneconfig
+            return;
+        }
         if (guiKey.isPressed()) {
             getComponent(ComponentId.GUI_MODIFIER).Toggle();
         } else if (menuKey.isPressed()) {
